@@ -8,6 +8,7 @@ import java.util.List;
 public class SegmentsCacheConnector {
 
   public List<byte[]> applyCacheToSegments(List<byte[]> segments) {
-    return null;
+    // TODO implement caching and deduplication
+    return segments;
   }
 }

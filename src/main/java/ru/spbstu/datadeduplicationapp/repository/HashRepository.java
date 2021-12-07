@@ -5,6 +5,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import ru.spbstu.datadeduplicationapp.model.Hash;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public class HashRepository {
     private HashOperations hashOperations;
@@ -17,25 +21,27 @@ public class HashRepository {
     }
 
     public void create(Hash hash) {
-        hashOperations.put(hash.getHashValue(), FILENAME_KEY, hash.getFilename());
-        hashOperations.put(hash.getHashValue(), LINE_NUMBER_KEY, hash.getLineNumber().toString());
-        hashOperations.put(hash.getHashValue(), REPEAT_COUNT_KEY, hash.getRepeatCount().toString());
+        hashOperations.putAll(hash.getHashValue(),
+                Map.of(FILENAME_KEY, hash.getFilename(),
+                        LINE_NUMBER_KEY, hash.getLineNumber().toString(),
+                        REPEAT_COUNT_KEY, hash.getRepeatCount().toString()));
+
     }
 
     public Hash get(String hashValue) {
-        String filename = (String) hashOperations.get(hashValue, FILENAME_KEY);
-        String lineNumber = (String) hashOperations.get(hashValue, LINE_NUMBER_KEY);
-        String repeatCount = (String) hashOperations.get(hashValue, REPEAT_COUNT_KEY);
-        if (filename != null && lineNumber != null && repeatCount != null)
-            return new Hash(hashValue, filename, Long.parseLong(lineNumber), Long.parseLong(repeatCount));
+        List<String> fields = hashOperations.multiGet(hashValue,
+                Arrays.asList(FILENAME_KEY, LINE_NUMBER_KEY, REPEAT_COUNT_KEY));
+        if (!fields.contains(null))
+            return new Hash(hashValue,
+                    fields.get(0),
+                    Long.parseLong(fields.get(1)),
+                    Long.parseLong(fields.get(2)));
         else
             return null;
     }
 
     public void delete(String hashValue) {
-        hashOperations.delete(hashValue, FILENAME_KEY);
-        hashOperations.delete(hashValue, LINE_NUMBER_KEY);
-        hashOperations.delete(hashValue, REPEAT_COUNT_KEY);
+        hashOperations.delete(hashValue, FILENAME_KEY, LINE_NUMBER_KEY, REPEAT_COUNT_KEY);
     }
 
     public boolean isHashExists(String hashValue) {

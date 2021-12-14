@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,16 +48,23 @@ public class DataStorageController {
   @GetMapping("/text/{id}")
   public String readText(@PathVariable String id) {
     try {
-      return persistenceService.readText(id);
+      return composeOutputTextFromFile(id);
     } catch (IOException ioException) {
       throw new RuntimeException();
     }
   }
 
-
   private String storeTextInputStream(InputStream textInputStream) throws IOException {
+    String path = UUID.randomUUID().toString();
     List<byte[]> segments = inputStreamSplitter.splitIntoSegments(textInputStream);
-    List<byte[]> cachedSegments = cacheConnector.applyCacheToSegments(segments);
-    return persistenceService.persistSegments(cachedSegments);
+    List<byte[]> cachedSegments = cacheConnector.applyCacheToSegments(path, segments);
+    return persistenceService.persistSegments(path, cachedSegments);
+  }
+
+  private String composeOutputTextFromFile(String id) throws IOException {
+    List<byte[]> segments = persistenceService.readSegments(id);
+    List<byte[]> resolvedSegments = cacheConnector.resolveReferences(segments);
+
+    return inputStreamSplitter.composeToOutputText(resolvedSegments);
   }
 }

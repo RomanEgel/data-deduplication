@@ -16,16 +16,21 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.1.4.RELEASE'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.cloud:spring-cloud-gcp-starter-secretmanager:1.2.8.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.1.4.RELEASE'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    def junitJupiterVersion = '5.4.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testImplementation "org.testcontainers:testcontainers:1.16.2"
+    testImplementation "org.testcontainers:junit-jupiter:1.16.2"
 }
 
 test {

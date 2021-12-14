@@ -1,8 +1,7 @@
-package ru.spbstu.datadeduplicationapp;
+package ru.spbstu.datadeduplicationapp.transform;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.spbstu.datadeduplicationapp.transform.InputStreamSplitter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,9 +12,10 @@ public class InputStreamSplitterTest {
   @Test
   public void testSplitText() throws IOException {
     String text = "Text here about something";
+    byte[] segment2 = new byte[16];
     Assertions.assertThat(splitter.splitIntoSegments(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8))))
-      .containsExactly("Text".getBytes(StandardCharsets.UTF_8), " her".getBytes(StandardCharsets.UTF_8),
-          "e ab".getBytes(StandardCharsets.UTF_8), "out ".getBytes(StandardCharsets.UTF_8), "some".getBytes(StandardCharsets.UTF_8),
-          "thin".getBytes(StandardCharsets.UTF_8), "g".getBytes(StandardCharsets.UTF_8));
+        .containsExactly(
+            "Text here about ".getBytes(StandardCharsets.UTF_8),
+            "something       ".getBytes(StandardCharsets.UTF_8));
   }
 }
